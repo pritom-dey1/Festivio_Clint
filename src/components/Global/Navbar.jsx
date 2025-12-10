@@ -49,7 +49,7 @@ export default function Navbar() {
             </nav>
           </div>
 
-           <div className="w-[20%] flex justify-end">
+           <div className="w-[20%] h-full flex justify-end">
              {/* RIGHT SECTION */}
             <div className="flex items-center gap-4">
 
@@ -59,16 +59,16 @@ export default function Navbar() {
 
                   <Link
                     to="/auth/login"
-                    className="px-5 py-2 rounded-md bg-gray-200 text-gray-800 font-semibold uppercase text-sm"
+                    className="px-5 py-3 rounded-md bg-gray-200 text-gray-800 font-semibold uppercase text-sm"
                   >
-                    Login
+                    {t("navbar.login")}
                   </Link>
 
                   <Link
                     to="/auth"
-                    className="px-5 py-2 rounded-md bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-semibold uppercase text-sm"
+                    className="px-5 py-3 rounded-md bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-semibold uppercase text-sm register"
                   >
-                    Register
+                    {t("navbar.register")}
                   </Link>
                 </>
               )}

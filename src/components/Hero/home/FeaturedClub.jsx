@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import ClubCard from "../../Global/ClubCard";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 
 const containerVariants = {
   hidden: {},
@@ -18,6 +19,7 @@ const cardVariants = {
 };
 
 const FeaturedClub = () => {
+  const {t} = useTranslation();
   const { data: clubs, isLoading } = useQuery({
     queryKey: ["featured-clubs"],
     queryFn: async () => {
@@ -43,7 +45,7 @@ const FeaturedClub = () => {
       {/* Title with gradient glow */}
       <h2 className="text-4xl uppercase md:text-5xl font-extrabold text-center mb-12">
         <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg">
-          Featured Clubs
+          {t("featuredclub.title")}
         </span>
       </h2>
 

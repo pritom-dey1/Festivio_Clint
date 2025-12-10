@@ -6,5 +6,18 @@
     "events": "Events",
     "login": "Login",
     "register": "Register"
+  },
+  "hero": {
+    "subtitle": "Join a Community That Fits You",
+    "typewriter": [
+      "Connect With Clubs",
+      "Join Fun Events",
+      "Grow Your Network"
+    ],
+    "description": "Discover exciting events, join vibrant communities, and manage your  club memberships seamlessly—all in one powerful platform.",
+    "button": "Explore Clubs"
+  },
+  "featuredclub":{
+    "title": "Featured Clubs"
   }
 }
