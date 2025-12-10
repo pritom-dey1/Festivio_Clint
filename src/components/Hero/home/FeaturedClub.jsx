@@ -43,7 +43,7 @@ const FeaturedClub = () => {
       {/* Title with gradient glow */}
       <h2 className="text-4xl uppercase md:text-5xl font-extrabold text-center mb-12">
         <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg">
-          Featured Clubs
+          Featured Club
         </span>
       </h2>
 
