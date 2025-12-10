@@ -19,5 +19,28 @@
   },
   "featuredclub":{
     "title": "Featured Clubs"
+  },
+  
+  "howClubSphereWorks": {
+    "title": "How ClubSphere Works",
+    "steps": [
+      {
+        "title": "Discover Clubs",
+        "desc": "Browse active local clubs and explore communities that match your interests."
+      },
+      {
+        "title": "Join & Connect",
+        "desc": "Become a member, engage with club activities, and meet new people."
+      },
+      {
+        "title": "Attend Events",
+        "desc": "Register for club events, workshops, meetups, and group activities."
+      },
+      {
+        "title": "Manage Everything",
+        "desc": "Club managers can create clubs, handle members, events, and payments smoothly."
+      }
+    ]
   }
+
 }
