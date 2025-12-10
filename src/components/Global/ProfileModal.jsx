@@ -12,12 +12,13 @@ export default function ProfileModal({ close }) {
     try {
       setLoading(true);
 
-      const res = await axios.put("http://localhost:5000/api/auth/update", {
-        name,
-        photoURL: photo,
-      }, { withCredentials: true });
+      const res = await axios.put(
+        "http://localhost:5000/api/auth/update",
+        { name, photoURL: photo },
+        { withCredentials: true }
+      );
 
-      setUser(res.data.user);  // update frontend auth state
+      setUser(res.data.user);
       close();
     } catch (err) {
       console.log(err);
@@ -27,33 +28,52 @@ export default function ProfileModal({ close }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[999]">
-      <div className="bg-white p-6 rounded-lg w-96 shadow-lg">
-        <h2 className="text-lg font-semibold mb-4">Edit Profile</h2>
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[999] px-3">
+      <div className="bg-white dark:bg-[#1e1e1e] w-full max-w-md p-6 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 transition-all">
 
-        <label className="block text-sm mb-1">Name</label>
-        <input
-          className="w-full border px-3 py-2 rounded mb-3"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+        <h2 className="text-xl font-semibold mb-5 text-gray-900 dark:text-gray-100">
+          Edit Profile
+        </h2>
 
-        <label className="block text-sm mb-1">Photo URL</label>
-        <input
-          className="w-full border px-3 py-2 rounded mb-3"
-          value={photo}
-          onChange={(e) => setPhoto(e.target.value)}
-        />
+        {/* NAME */}
+        <div className="mb-4">
+          <label className="block text-sm mb-1 text-gray-600 dark:text-gray-300">
+            Name
+          </label>
+          <input
+            className="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-[#2a2a2a] text-gray-800 dark:text-gray-100 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
 
-        <div className="flex justify-end gap-3 mt-4">
-          <button onClick={close} className="px-4 py-2 bg-gray-200 rounded">
+        {/* PHOTO URL */}
+        <div className="mb-2">
+          <label className="block text-sm mb-1 text-gray-600 dark:text-gray-300">
+            Photo URL
+          </label>
+          <input
+            className="w-full border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-[#2a2a2a] text-gray-800 dark:text-gray-100 px-3 py-2 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all"
+            value={photo}
+            onChange={(e) => setPhoto(e.target.value)}
+          />
+        </div>
+
+        {/* BUTTONS */}
+        <div className="flex justify-end gap-3 mt-6">
+          <button
+            onClick={close}
+            className="px-5 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300
+                       dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600 transition-all"
+          >
             Cancel
           </button>
 
           <button
             onClick={handleSave}
-            className="px-4 py-2 bg-indigo-600 text-white rounded"
             disabled={loading}
+            className="px-5 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700
+                       disabled:opacity-60 transition-all"
           >
             {loading ? "Saving..." : "Save"}
           </button>
