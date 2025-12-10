@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
@@ -76,8 +76,12 @@ const EventPaymentForm = ({ clientSecret, event, user, onSuccess, showToast }) =
         showToast("Registration successful");
         onSuccess();
       }
-    } catch (_) {
-      showToast("Payment failed", "error");
+    } catch (err) {
+      if (err.response?.data?.error === "You have already registered for this event.") {
+        showToast("You have already registered for this event.", "error");
+      } else {
+        showToast("Payment failed", "error");
+      }
     } finally {
       setLoading(false);
     }
@@ -100,12 +104,27 @@ const EventPaymentForm = ({ clientSecret, event, user, onSuccess, showToast }) =
 const EventCard = ({ event, user }) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [clientSecret, setClientSecret] = useState("");
+  const [alreadyRegistered, setAlreadyRegistered] = useState(false);
   const { showToast, ToastContainer } = useToast();
 
-  const cutText = (text, limit = 120) => text.length > limit ? text.slice(0, limit) + "..." : text;
+  // ✅ Check if user already registered
+  useEffect(() => {
+    const checkRegistration = async () => {
+      if (!user) return;
+      try {
+        const res = await axios.get("http://localhost:5000/api/event-registrations/my", { withCredentials: true });
+        const registered = res.data.some(r => r.eventId === event._id);
+        setAlreadyRegistered(registered);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    checkRegistration();
+  }, [event._id, user]);
 
   const handleRegister = async () => {
     if (!user || !user._id) return showToast("Please login first", "error");
+    if (alreadyRegistered) return showToast("You have already registered for this event.", "error");
 
     if (event.isPaid) {
       try {
@@ -114,7 +133,6 @@ const EventCard = ({ event, user }) => {
           { amount: event.eventFee * 100, clubId: event.clubId },
           { withCredentials: true }
         );
-
         setClientSecret(res.data.clientSecret);
         setModalOpen(true);
       } catch (_) {
@@ -135,21 +153,23 @@ const EventCard = ({ event, user }) => {
         { withCredentials: true }
       );
 
+      setAlreadyRegistered(true);
       showToast("Registered successfully");
     } catch (_) {
       showToast("Registration failed", "error");
     }
   };
-
+ const cutText = (text, limit = 100) => {
+  if (!text) return "";
+  return text.length > limit ? text.slice(0, limit) + "..." : text;
+};
   return (
     <div className="bg-gradient-to-r from-indigo-900/20 to-purple-900/20 p-6 rounded-2xl border border-white/10 shadow-lg flex flex-col gap-4 hover:scale-[1.02] transition-all duration-300">
       <ToastContainer />
-
       <h3 className="text-2xl font-bold text-white">{event.title}</h3>
 
-      <p className="text-gray-300">
-        {cutText(event.description)}
-      </p>
+      <p className="text-gray-300">  {cutText(event.description, 120)}
+</p>
 
       <div className="flex flex-col gap-2 mt-2 text-gray-400">
         <div className="flex items-center gap-2"><Calendar className="w-5 h-5" /><span>{new Date(event.eventDate).toLocaleDateString()}</span></div>
@@ -160,11 +180,10 @@ const EventCard = ({ event, user }) => {
 
       <button
         onClick={handleRegister}
-        className={`mt-4 px-4 py-2 rounded-xl font-semibold w-full text-white transition-all ${
-          event.isPaid ? "bg-indigo-600 hover:bg-indigo-700" : "bg-green-600 hover:bg-green-700"
-        }`}
+        disabled={alreadyRegistered}
+        className={`mt-4 px-4 py-2 rounded-xl font-semibold w-full text-white transition-all bg-indigo-600 hover:bg-indigo-700`}
       >
-        {event.isPaid ? "Register & Pay" : "Register Now"}
+        {alreadyRegistered ? "Already Registered" : event.isPaid ? "Register & Pay" : "Register Now"}
       </button>
 
       {modalOpen && clientSecret && (
@@ -178,7 +197,7 @@ const EventCard = ({ event, user }) => {
               <EventPaymentForm
                 event={event}
                 user={user}
-                onSuccess={() => setModalOpen(false)}
+                onSuccess={() => { setModalOpen(false); setAlreadyRegistered(true); }}
                 showToast={showToast}
               />
             </Elements>

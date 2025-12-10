@@ -8,7 +8,7 @@ import ClubCard from "../components/Global/ClubCard";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { useAuth } from "../context/AuthContext";
-import { toast } from "react-hot-toast";
+import { toast } from "react-toastify";
 
 // Stripe public key
 const stripePromise = loadStripe("pk_test_51ScBIzIcsp8vYrfuOGzx1pmCiFj3QtdIV5zUODGHSvcc4NBx7bkgi60g2GNwwJaNm4MQPI9H5h1286ZrEK3tOahU00LVqZcGzD");

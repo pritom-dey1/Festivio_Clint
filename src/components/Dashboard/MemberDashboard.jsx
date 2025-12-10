@@ -7,7 +7,9 @@ import { FiCreditCard, FiUsers, FiCalendar, FiGrid } from "react-icons/fi";
 import Logo from "../../assets/Logo.png";
 import { useAuth } from "../../context/AuthContext";
 import LogoutButton from "../Global/LogoutButton";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import { Laptop, Dumbbell, Palette, Music, BookOpen, Gamepad, Camera, Film, Briefcase, MapPin, HelpCircle, ArrowRight } from "lucide-react";
 
 const tabs = [
   { id: "overview", label: "Overview", icon: FiGrid },
@@ -25,8 +27,26 @@ const MemberDashboard = () => {
   const [myEvents, setMyEvents] = useState([]);
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  console.log(myClubs);
   const API = "http://localhost:5000/api/dashboard/member";
+
+  const cancelEventRegistration = async (registrationId) => {
+    try {
+      await axios.put(
+        `http://localhost:5000/api/event-registrations/cancel/${registrationId}`,
+        {},
+        { withCredentials: true }
+      );
+
+      await loadEvents();
+      await loadOverview();
+
+      toast.success("Event registration cancelled successfully!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to cancel event.");
+    }
+  };
 
   const loadOverview = async () => {
     const res = await axios.get(`${API}/overview`, { withCredentials: true });
@@ -63,9 +83,11 @@ const MemberDashboard = () => {
   if (loading)
     return (
       <div className="flex justify-center items-center min-h-screen text-gray-300">
-        <p></p>
+        <p>Loading...</p>
       </div>
     );
+
+
 
   return (
     <div className="relative min-h-screen flex bg-gradient-to-br from-[#0a0d15] via-[#090c14] to-[#070a12] text-gray-200">
@@ -74,8 +96,7 @@ const MemberDashboard = () => {
       <div className="w-64 h-screen fixed left-0 top-0 bg-white/5 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col shadow-xl">
         <div className="flex items-center gap-3 mb-10">
           <Link to='/'>
-                    <img src={Logo} alt="logo" className="w-10" />
-
+            <img src={Logo} alt="logo" className="w-10" />
           </Link>
         </div>
 
@@ -100,17 +121,14 @@ const MemberDashboard = () => {
 
       {/* Main Content */}
       <div className="flex-1 ml-64 flex flex-col min-h-screen">
-
         {/* Top Bar */}
         <div className="sticky top-0 z-50 flex justify-between items-center px-6 py-4 
           bg-gradient-to-r from-[#161b29]/90 to-[#0f131d]/90
           backdrop-blur-xl border-b border-white/10 shadow-xl">
-
           <div>
             <p className="text-lg font-semibold">{user?.name}</p>
             <p className="text-sm opacity-60">{user?.email}</p>
           </div>
-
           <LogoutButton />
         </div>
 
@@ -123,7 +141,6 @@ const MemberDashboard = () => {
               <h2 className="text-3xl font-bold mb-6 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
                 Overview
               </h2>
-
               <div className="grid md:grid-cols-3 gap-6">
                 {[
                   { label: "Clubs Joined", value: overview.totalClubsJoined },
@@ -140,21 +157,6 @@ const MemberDashboard = () => {
                   </motion.div>
                 ))}
               </div>
-
-              <h3 className="mt-8 text-xl font-semibold mb-3">Upcoming Events</h3>
-              <div className="space-y-3">
-                {(overview.upcomingEvents || []).map((e) => (
-                  <div
-                    key={e._id}
-                    className="bg-white/5 p-4 rounded-xl border border-white/10 shadow hover:bg-white/10 transition"
-                  >
-                    <p className="font-semibold">{e.title}</p>
-                    <p className="text-sm opacity-60">
-                      {new Date(e.eventDate).toLocaleDateString()}
-                    </p>
-                  </div>
-                ))}
-              </div>
             </motion.div>
           )}
 
@@ -162,20 +164,41 @@ const MemberDashboard = () => {
           {activeTab === "clubs" && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <h2 className="text-3xl font-bold mb-6">My Clubs</h2>
-
               <div className="grid md:grid-cols-2 gap-6">
                 {myClubs.map((c) => (
-                  <motion.div
-                    key={c._id}
-                    whileHover={{ scale: 1.03 }}
-                    className="bg-white/5 p-6 rounded-2xl border border-white/10 shadow-lg hover:bg-white/10 transition"
-                  >
-                    <p className="text-lg font-semibold">{c.clubId?.clubName}</p>
-                    <p className="text-green-400">Status: {c.status}</p>
-                    <p className="opacity-60 text-sm">
-                      Expires: {new Date(c.expiryDate).toLocaleDateString()}
-                    </p>
-                  </motion.div>
+                  <Link key={c._id} to={`/clubs/${c.clubId?._id}`}>
+                    <motion.div
+                      whileHover={{ scale: 1.03 }}
+                      className="bg-white/10 p-6 rounded-2xl border border-white/20 shadow-xl hover:shadow-2xl transition-all duration-300"
+                    >
+                      <h3 className="text-lg font-semibold mb-1">{c.clubId?.clubName}</h3>
+                      <p className="text-green-400 mb-1">Status: {c.status}</p>
+                     <p className="opacity-60 text-sm mb-2">
+  Expires: {c.expiresAt ? new Date(c.expiresAt).toLocaleDateString() : "N/A"}
+</p>
+
+                
+
+                      {/* Location / Map snippet */}
+                      {c.clubId?.location && (
+                        <div className="w-full h-40 rounded-lg overflow-hidden mb-2">
+                          <iframe
+                            src={`https://www.google.com/maps?q=${encodeURIComponent(c.clubId.location)}&output=embed`}
+                            width="100%"
+                            height="100%"
+                            className="rounded-lg"
+                            loading="lazy"
+                            title="Club Location"
+                          ></iframe>
+                        </div>
+                      )}
+
+                      {/* View Button */}
+                      <div className="flex justify-end">
+                        <ArrowRight size={20} className="text-indigo-400 hover:text-indigo-500 transition" />
+                      </div>
+                    </motion.div>
+                  </Link>
                 ))}
               </div>
             </motion.div>
@@ -185,7 +208,6 @@ const MemberDashboard = () => {
           {activeTab === "events" && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <h2 className="text-3xl font-bold mb-6">My Events</h2>
-
               <div className="grid md:grid-cols-2 gap-6">
                 {myEvents.map((e) => (
                   <motion.div
@@ -197,6 +219,21 @@ const MemberDashboard = () => {
                     <p className="opacity-60 text-sm">
                       Date: {new Date(e.eventId?.eventDate).toLocaleDateString()}
                     </p>
+                    <p className="mt-2 text-sm">
+                      Status:  
+                      <span className={`font-semibold ${e.status === "cancelled" ? "text-red-400" : "text-green-400"}`}>
+                        {e.status}
+                      </span>
+                    </p>
+                    {e.status === "registered" && (
+                      <button
+                        onClick={() => cancelEventRegistration(e._id)}
+                        className="mt-4 px-4 py-2 bg-red-500/70 hover:bg-red-600 rounded-lg text-white 
+                        transition font-semibold w-full"
+                      >
+                        Cancel Registration
+                      </button>
+                    )}
                   </motion.div>
                 ))}
               </div>
@@ -207,7 +244,6 @@ const MemberDashboard = () => {
           {activeTab === "payments" && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <h2 className="text-3xl font-bold mb-6">Payment History</h2>
-
               <div className="grid md:grid-cols-2 gap-6">
                 {payments.map((p) => (
                   <motion.div
