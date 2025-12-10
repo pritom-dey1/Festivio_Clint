@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { FiUsers, FiGrid, FiCreditCard, FiClipboard } from "react-icons/fi";
 import Logo from "../../assets/Logo.png"; // replace with your logo path
 import LogoutButton from "../Global/LogoutButton";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from "recharts";
+import { useAuth } from "../../context/AuthContext";
 
 const tabs = [
   { id: "overview", label: "Overview", icon: FiGrid },
@@ -20,11 +21,13 @@ const neonColors = ["#6366f1", "#a855f7", "#ec4899", "#f472b6"];
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [overview, setOverview] = useState(null);
+  console.log();
   const [users, setUsers] = useState([]);
   const [clubs, setClubs] = useState([]);
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const {user} =useAuth();
+  console.log(clubs);
   // Fetch API
   const fetchOverview = async () => {
     const res = await axios.get(`${API_ROOT}/overview`, { withCredentials: true });
@@ -73,9 +76,16 @@ const AdminDashboard = () => {
 
   if (loading || !overview) return <p className="text-center mt-10 text-white">Loading Admin Dashboard...</p>;
 
-  // Charts
+  // Prepare data for charts
   const clubPieData = clubs.map(c => ({ name: c.clubName, value: c.membersCount || 1 }));
   const paymentsBarData = payments.slice(0, 10).map(p => ({ name: p.clubName || "N/A", amount: p.amount }));
+
+  // Total clubs by status
+  const totalClubs = {
+    pending: clubs.filter(c => c.status === "pending").length,
+    approved: clubs.filter(c => c.status === "approved").length,
+    rejected: clubs.filter(c => c.status === "rejected").length,
+  };
 
   return (
     <div className="relative min-h-screen flex bg-gradient-to-br from-[#0a0d15] via-[#090c14] to-[#070a12] text-gray-200">
@@ -83,7 +93,6 @@ const AdminDashboard = () => {
       <div className="w-64 h-screen fixed left-0 top-0 bg-white/5 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col shadow-xl">
         <div className="flex items-center gap-3 mb-10">
           <img src={Logo} alt="logo" className="w-10" />
-          <p className="font-bold text-lg">Admin</p>
         </div>
         <div className="space-y-2">
           {tabs.map(tab => (
@@ -106,8 +115,8 @@ const AdminDashboard = () => {
         {/* Topbar */}
         <div className="sticky top-0 z-50 flex justify-between items-center px-6 py-4 bg-gradient-to-r from-[#161b29]/90 to-[#0f131d]/90 backdrop-blur-xl border-b border-white/10 shadow-xl">
           <div>
-            <p className="text-lg font-semibold">{overview.adminName || "Admin"}</p>
-            <p className="text-sm opacity-60">{overview.adminEmail || "admin@example.com"}</p>
+            <p className="text-lg font-semibold">{user?.name || "Admin"}(Admin)</p>
+            <p className="text-sm opacity-60">{user?.email || "admin@example.com"}</p>
           </div>
           <LogoutButton />
         </div>
@@ -120,7 +129,7 @@ const AdminDashboard = () => {
               <div className="grid md:grid-cols-4 gap-6">
                 {[
                   { label: "Total Users", value: overview.totalUsers },
-                  { label: "Total Clubs", value: overview.totalClubs },
+                  { label: "Total Clubs", value: `${overview.totalClubs} ` },
                   { label: "Total Memberships", value: overview.totalMemberships },
                   { label: "Total Payments", value: `$${overview.totalPayments}` },
                 ].map((item, i) => (
@@ -177,6 +186,7 @@ const AdminDashboard = () => {
                       <th className="px-4 py-2">Name</th>
                       <th className="px-4 py-2">Email</th>
                       <th className="px-4 py-2">Role</th>
+                      <th className="px-4 py-2">Created At</th>
                       <th className="px-4 py-2">Change Role</th>
                     </tr>
                   </thead>
@@ -186,6 +196,7 @@ const AdminDashboard = () => {
                         <td className="px-4 py-2">{u.name}</td>
                         <td className="px-4 py-2">{u.email}</td>
                         <td className="px-4 py-2">{u.role}</td>
+                        <td className="px-4 py-2">{new Date(u.createdAt).toLocaleDateString()}</td>
                         <td className="px-4 py-2">
                           <select value={u.role} onChange={(e) => handleChangeUserRole(u._id, e.target.value)} className="bg-[#1a1a26] px-2 py-1 rounded-md text-white">
                             <option value="admin">Admin</option>
@@ -209,7 +220,11 @@ const AdminDashboard = () => {
                 {clubs.map(c => (
                   <motion.div key={c._id} whileHover={{ scale: 1.03 }} className="bg-white/5 p-6 rounded-2xl border border-white/10 shadow-lg hover:bg-white/10 transition">
                     <p className="text-lg font-semibold">{c.clubName}</p>
-                    <p className="opacity-60">{c.status}</p>
+                    <p className="opacity-60">Manager: {c.managerEmail}</p>
+                    <p className="opacity-60">Status: {c.status}</p>
+                    <p className="opacity-60">Members: {c.membersCount || 0}</p>
+                    <p className="opacity-60">Events: {c.eventsCount || 0}</p>
+                    <p className="opacity-60">Fee: ${c.membershipFee || 0}</p>
                     <div className="flex gap-3 mt-2">
                       {c.status === "pending" && (
                         <>
@@ -232,8 +247,9 @@ const AdminDashboard = () => {
                 {payments.map(p => (
                   <motion.div key={p._id} whileHover={{ scale: 1.03 }} className="bg-white/5 p-6 rounded-2xl border border-white/10 shadow-lg hover:bg-white/10 transition">
                     <p className="text-lg font-semibold">${p.amount}</p>
-                 <p className="opacity-60 text-sm">{p.userEmail || p.userId?.email || p.userId?._id}</p>
-
+                    <p className="opacity-60 text-sm">{p.userEmail || p.userId?.email || p.userId?._id}</p>
+                    <p className="opacity-60 text-sm">Type: {p.type || "membership"}</p>
+                    <p className="opacity-60 text-sm">Date: {new Date(p.createdAt).toLocaleDateString()}</p>
                     <p className="text-indigo-400">{p.status || "paid"}</p>
                   </motion.div>
                 ))}
