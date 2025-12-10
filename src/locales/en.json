@@ -41,6 +41,48 @@
         "desc": "Club managers can create clubs, handle members, events, and payments smoothly."
       }
     ]
+  },
+   "whyJoinAClub": {
+    "title": "Why Join a Club?",
+    "subtitle": "Joining a club is more than an activity—it's a path to growth, belonging, and opportunities.",
+    "steps": [
+      { "title": "Meet New People", "desc": "Connect with like-minded people and expand your network." },
+      { "title": "Develop New Skills", "desc": "Learn new abilities through hands-on experiences." },
+      { "title": "Be Part of a Community", "desc": "Club activities make you feel included, valued, and supported." },
+      { "title": "Achieve More", "desc": "Participate in competitions and events that help you grow." }
+    ],
+    "faqs": [
+      { "q": "Is joining a club free?", "a": "Most clubs are free to join, while some may have small membership fees depending on the club and events." },
+      { "q": "Do I need experience to join?", "a": "No experience needed — beginners are welcome. Clubs often run workshops for different skill levels." },
+      { "q": "Can I join multiple clubs?", "a": "Yes — you can join as many clubs as you like and participate based on your time and interest." },
+      { "q": "How do events work?", "a": "Club managers create events; you can view details and register through ClubSphere. Payments (if any) are handled within the platform." },
+      { "q": "Can I suggest new clubs or events?", "a": "Yes! ClubSphere allows members to propose new clubs or events. Admins and club managers will review your suggestions and take action accordingly." }
+    ]
+  }
+,
+
+  "footer": {
+    "description": "Connecting clubs, events, and members seamlessly. Your platform for managing and joining communities with ease.",
+    "quickLinks": "Quick Links",
+    "quickLinksItems": {
+      "home": "Home",
+      "clubs": "Clubs",
+      "events": "Events",
+      "about": "About",
+      "contact": "Contact"
+    },
+    "member": "Member",
+    "memberItems": {
+      "profile": "Profile",
+      "dashboard": "Dashboard",
+      "login": "Login",
+      "register": "Register"
+    },
+    "contact": "Contact",
+    "address": "123 Club Street, Chittagong , Bangladesh",
+    "email": "Email: support@clubsphere.com",
+    "phone": "Phone: +123 456 7890",
+    "copyright": "All rights reserved."
   }
 
 }
