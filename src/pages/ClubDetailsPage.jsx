@@ -170,7 +170,7 @@ const ClubDetailsPage = () => {
   };
 
   if (loading) return <p className="text-white text-center mt-20">Loading...</p>;
-  if (!club) return <p className="text-white text-center mt-20">Club not found.</p>;
+  if (!club) return <p className="text-white  text-center mt-50">Club not found.</p>;
 
   return (
     <div className="relative w-full min-h-screen">

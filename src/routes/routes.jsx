@@ -13,6 +13,7 @@ import Allevents from "../components/Allevents/Allevents";
 import About from "../pages/About";
 import Aboutlayouts from "../Layouts/Aboutlayouts";
 import PrivateRoute from "./PrivateRoute";
+import NotFound from "../pages/NotFound";
 
 export const router =createBrowserRouter([
     {
@@ -78,5 +79,9 @@ export const router =createBrowserRouter([
             element:<About></About>
         }
     ]
+},
+{
+    path: '*',
+    element: <NotFound />
 }
 ])
