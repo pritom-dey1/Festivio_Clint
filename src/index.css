@@ -141,3 +141,11 @@ p,a,span{
 .btn-delete {
   @apply px-4 py-1 bg-red-600 text-white rounded-lg hover:bg-red-500 transition;
 }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}

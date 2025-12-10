@@ -4,6 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import AdminDashboard from "../components/Dashboard/AdminDashboard";
 import ManagerDashboard from "../components/Dashboard/ManagerDashboard";
 import MemberDashboard from "../components/Dashboard/MemberDashboard";
+import Loader from "../components/Loader";
 
 const Dashboard = () => {
   const { user } = useAuth()
@@ -23,7 +24,7 @@ const Dashboard = () => {
     fetchData()
   }, [user])
 
-  if (!dashboardData) return <p>Loading dashboard...</p>
+  if (!dashboardData) return <Loader />
 
   switch (user.role) {
     case "admin":

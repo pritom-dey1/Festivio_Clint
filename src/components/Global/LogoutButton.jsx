@@ -1,17 +1,26 @@
-// src/components/LogoutButton.jsx
 import { signOut } from "firebase/auth";
 import { auth } from "../../config/firebase.config";
 import axios from "axios";
 import { FiLogOut } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 const LogoutButton = () => {
+  const navigate = useNavigate();
+
   const handleLogout = async () => {
-    await axios.post(
-      "http://localhost:5000/api/auth/logout",
-      {},
-      { withCredentials: true }
-    );
-    await signOut(auth);
+    try {
+      await axios.post(
+        "http://localhost:5000/api/auth/logout",
+        {},
+        { withCredentials: true }
+      );
+
+      await signOut(auth);
+
+      navigate("/"); 
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

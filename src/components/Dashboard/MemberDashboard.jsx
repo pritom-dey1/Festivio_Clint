@@ -3,10 +3,11 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { FiCreditCard, FiUsers, FiCalendar, FiLogOut, FiGrid } from "react-icons/fi";
+import { FiCreditCard, FiUsers, FiCalendar, FiGrid } from "react-icons/fi";
 import Logo from "../../assets/Logo.png";
 import { useAuth } from "../../context/AuthContext";
 import LogoutButton from "../Global/LogoutButton";
+import { Link } from "react-router";
 
 const tabs = [
   { id: "overview", label: "Overview", icon: FiGrid },
@@ -16,43 +17,41 @@ const tabs = [
 ];
 
 const MemberDashboard = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
 
   const [overview, setOverview] = useState(null);
   const [myClubs, setMyClubs] = useState([]);
   const [myEvents, setMyEvents] = useState([]);
   const [payments, setPayments] = useState([]);
-
   const [loading, setLoading] = useState(true);
 
+  const API = "http://localhost:5000/api/dashboard/member";
+
   const loadOverview = async () => {
-    const res = await axios.get("http://localhost:5000/api/dashboard/member/overview", { withCredentials: true });
+    const res = await axios.get(`${API}/overview`, { withCredentials: true });
     setOverview(res.data);
   };
 
   const loadClubs = async () => {
-    const res = await axios.get("http://localhost:5000/api/dashboard/member/my-clubs", { withCredentials: true });
+    const res = await axios.get(`${API}/my-clubs`, { withCredentials: true });
     setMyClubs(res.data);
   };
 
   const loadEvents = async () => {
-    const res = await axios.get("http://localhost:5000/api/dashboard/member/my-events", { withCredentials: true });
+    const res = await axios.get(`${API}/my-events`, { withCredentials: true });
     setMyEvents(res.data);
   };
 
   const loadPayments = async () => {
-    const res = await axios.get("http://localhost:5000/api/dashboard/member/payments", { withCredentials: true });
+    const res = await axios.get(`${API}/payments`, { withCredentials: true });
     setPayments(res.data);
   };
 
   useEffect(() => {
     const loadAll = async () => {
       try {
-        await loadOverview();
-        await loadClubs();
-        await loadEvents();
-        await loadPayments();
+        await Promise.all([loadOverview(), loadClubs(), loadEvents(), loadPayments()]);
       } catch (error) {
         console.error(error);
       }
@@ -64,19 +63,20 @@ const MemberDashboard = () => {
   if (loading)
     return (
       <div className="flex justify-center items-center min-h-screen text-gray-300">
-        <p>Loading dashboard...</p>
+        <p></p>
       </div>
     );
 
   return (
     <div className="relative min-h-screen flex bg-gradient-to-br from-[#0a0d15] via-[#090c14] to-[#070a12] text-gray-200">
 
-      {/* ================= Sidebar (Sticky) ================= */}
+      {/* Sidebar */}
       <div className="w-64 h-screen fixed left-0 top-0 bg-white/5 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col shadow-xl">
-
         <div className="flex items-center gap-3 mb-10">
-          <img src={Logo} alt="logo" className="w-10" />
-      
+          <Link to='/'>
+                    <img src={Logo} alt="logo" className="w-10" />
+
+          </Link>
         </div>
 
         <div className="space-y-2">
@@ -98,10 +98,10 @@ const MemberDashboard = () => {
         </div>
       </div>
 
-      {/* ================= Main Content ================= */}
+      {/* Main Content */}
       <div className="flex-1 ml-64 flex flex-col min-h-screen">
 
-        {/* ================= Top Bar (Sticky) ================= */}
+        {/* Top Bar */}
         <div className="sticky top-0 z-50 flex justify-between items-center px-6 py-4 
           bg-gradient-to-r from-[#161b29]/90 to-[#0f131d]/90
           backdrop-blur-xl border-b border-white/10 shadow-xl">
@@ -111,10 +111,10 @@ const MemberDashboard = () => {
             <p className="text-sm opacity-60">{user?.email}</p>
           </div>
 
-<LogoutButton></LogoutButton>
+          <LogoutButton />
         </div>
 
-        {/* ================= Scrollable Content ================= */}
+        {/* Scrollable Content */}
         <div className="flex-1 p-8 space-y-6 overflow-y-auto">
 
           {/* Overview */}
@@ -128,7 +128,7 @@ const MemberDashboard = () => {
                 {[
                   { label: "Clubs Joined", value: overview.totalClubsJoined },
                   { label: "Events Registered", value: overview.totalEventsRegistered },
-                  { label: "Upcoming Events", value: overview.upcomingEvents.length },
+                  { label: "Upcoming Events", value: overview.upcomingEvents?.length || 0 },
                 ].map((item, i) => (
                   <motion.div
                     key={i}
@@ -143,7 +143,7 @@ const MemberDashboard = () => {
 
               <h3 className="mt-8 text-xl font-semibold mb-3">Upcoming Events</h3>
               <div className="space-y-3">
-                {overview.upcomingEvents.map((e) => (
+                {(overview.upcomingEvents || []).map((e) => (
                   <div
                     key={e._id}
                     className="bg-white/5 p-4 rounded-xl border border-white/10 shadow hover:bg-white/10 transition"

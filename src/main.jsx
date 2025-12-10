@@ -16,7 +16,7 @@ createRoot(document.getElementById('root')).render(
       <AuthProvider>
             <ToastContainer 
       position="top-right" 
-      autoClose={3000} 
+      autoClose={10000} 
       hideProgressBar={false} 
       newestOnTop={false} 
       closeOnClick 
@@ -24,6 +24,7 @@ createRoot(document.getElementById('root')).render(
       pauseOnFocusLoss 
       draggable 
       pauseOnHover 
+      style={{ zIndex: 9999 }}
     />
         <RouterProvider router={router} />
       </AuthProvider>
