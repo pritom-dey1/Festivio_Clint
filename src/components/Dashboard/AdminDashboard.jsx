@@ -21,7 +21,7 @@ const neonColors = ["#6366f1", "#a855f7", "#ec4899", "#f472b6"];
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [overview, setOverview] = useState(null);
-  console.log();
+  console.log(overview);
   const [users, setUsers] = useState([]);
   const [clubs, setClubs] = useState([]);
   const [payments, setPayments] = useState([]);
@@ -78,8 +78,8 @@ const AdminDashboard = () => {
 
   // Prepare data for charts
   const clubPieData = clubs.map(c => ({ name: c.clubName, value: c.membersCount || 1 }));
-  const paymentsBarData = payments.slice(0, 10).map(p => ({ name: p.clubName || "N/A", amount: p.amount }));
-
+  const paymentsBarData = payments.slice(0, 10).map(p => ({ name: p.clubId.clubName || "N/A", amount: p.amount }));
+  console.log(payments);
   // Total clubs by status
   const totalClubs = {
     pending: clubs.filter(c => c.status === "pending").length,
