@@ -32,37 +32,38 @@ const EventPaymentForm = ({ clientSecret, event, user, onSuccess }) => {
         return;
       }
 
-      if (paymentIntent && paymentIntent.status === "succeeded") {
-        // Save Payment record
-        const paymentRes = await axios.post(
-          "http://localhost:5000/api/payments",
-          {
-            userId: user._id,
-            userEmail: user.email,
-            amount: event.eventFee,
-            type: "event",
-            clubId: event.clubId,
-            eventId: event._id,
-            stripePaymentIntentId: paymentIntent.id,
-            status: "success",
-          },
-          { withCredentials: true }
-        );
+if (paymentIntent && paymentIntent.status === "succeeded") {
+  // Save Payment record
+  const paymentRes = await axios.post(
+    "http://localhost:5000/api/payments",
+    {
+      userId: user._id,
+      userEmail: user.email,
+      amount: event.eventFee,
+      type: "event",
+      clubId: event.clubId,
+      eventId: event._id,
+      stripePaymentIntentId: paymentIntent.id,
+      status: "success",
+    },
+    { withCredentials: true }
+  );
 
-        // Save Event Registration
-        await axios.post(
-          "http://localhost:5000/api/event-registrations",
-          {
-            eventId: event._id,
-            clubId: event.clubId,
-            paymentId: paymentRes.data._id,
-          },
-          { withCredentials: true }
-        );
+  // Save Event Registration
+  await axios.post(
+    "http://localhost:5000/api/event-registrations",
+    {
+      eventId: event._id,
+      clubId: event.clubId,
+      paymentId: paymentRes.data._id,
+    },
+    { withCredentials: true }
+  );
 
-        toast.success("Event registration successful!");
-        onSuccess();
-      }
+  toast.success("Registration successful!");
+
+  onSuccess(); // modal close
+}
     } catch (err) {
       console.error(err);
       toast.error("Payment/Register error!");

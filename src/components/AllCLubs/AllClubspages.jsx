@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Search, ChevronDown } from "lucide-react";
 import ClubCard from "../Global/ClubCard";
 import DarkVeil from "../Hero/DarkVeliBanner";
+import Loader from "../Loader";
 
 const categories = ["All", "Technology", "Sports", "Arts", "Music", "Literature", "Gaming", "Photography", "Science", "Drama", "Business", "Travel"];
 
@@ -113,7 +114,7 @@ const AllClubsPage = () => {
       {/* Clubs Grid */}
       <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pb-10">
         {loading ? (
-          <p className="text-white text-center col-span-full">Loading clubs...</p>
+          <Loader></Loader>
         ) : clubs.length === 0 ? (
           <p className="text-white text-center col-span-full">No clubs found.</p>
         ) : (
