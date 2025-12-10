@@ -126,7 +126,7 @@ const MemberDashboard = () => {
           bg-gradient-to-r from-[#161b29]/90 to-[#0f131d]/90
           backdrop-blur-xl border-b border-white/10 shadow-xl">
           <div>
-            <p className="text-lg font-semibold">{user?.name}</p>
+            <p className="text-lg font-semibold">{user?.name}(Member)</p>
             <p className="text-sm opacity-60">{user?.email}</p>
           </div>
           <LogoutButton />
