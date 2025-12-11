@@ -107,7 +107,7 @@ export default function Navbar() {
               </div>
 
               <button
-                className="md:hidden p-2 rounded hover:bg-gray-100"
+                className="md:hidden p-2 rounded"
                 onClick={() => setMobileOpen((prev) => !prev)}
               >
                 {mobileOpen ? (

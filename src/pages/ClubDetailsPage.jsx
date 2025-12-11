@@ -10,7 +10,6 @@ import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-
 import { useAuth } from "../context/AuthContext";
 import { toast } from "react-toastify";
 
-// Stripe public key
 const stripePromise = loadStripe("pk_test_51ScBIzIcsp8vYrfuOGzx1pmCiFj3QtdIV5zUODGHSvcc4NBx7bkgi60g2GNwwJaNm4MQPI9H5h1286ZrEK3tOahU00LVqZcGzD");
 
 const CheckoutForm = ({ clientSecret, clubId, onSuccess }) => {
@@ -45,7 +44,6 @@ const CheckoutForm = ({ clientSecret, clubId, onSuccess }) => {
           return;
         }
 
-        // Save payment
         const paymentData = {
           userId: user._id,
           userEmail: user.email,
@@ -62,15 +60,13 @@ const CheckoutForm = ({ clientSecret, clubId, onSuccess }) => {
           { withCredentials: true }
         );
 
-        // Create membership
         await axios.post(
           "http://localhost:5000/api/memberships",
           { userId: user._id, clubId, status: "active", paymentId: paymentRes.data._id },
           { withCredentials: true }
         );
 
-        // ✅ Success: call onSuccess for modal close + toast
-        onSuccess(); // parent component এ setModalOpen(false) + toast handle করা হবে
+        onSuccess();
       }
     } catch (err) {
       console.error("Payment submit error:", err);
@@ -104,7 +100,7 @@ const ClubDetailsPage = () => {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [clientSecret, setClientSecret] = useState("");
-  const [addedMap, setAddedMap] = useState({}); // club-specific added state
+  const [addedMap, setAddedMap] = useState({});
 
   useEffect(() => {
     const fetchClub = async () => {
@@ -131,7 +127,7 @@ const ClubDetailsPage = () => {
       return;
     }
 
-    if (addedMap[club._id]) return; // শুধু ওই ক্লাবের জন্য check
+    if (addedMap[club._id]) return;
 
     if (club.membershipFee === 0) {
       try {
@@ -170,15 +166,16 @@ const ClubDetailsPage = () => {
   };
 
   if (loading) return <p className="text-white text-center mt-20">Loading...</p>;
-  if (!club) return <p className="text-white  text-center mt-50">Club not found.</p>;
+  if (!club) return <p className="text-white text-center mt-20">Club not found.</p>;
 
   return (
     <div className="relative w-full min-h-screen">
-      {/* Banner */}
+
       <div className="relative w-full h-64 md:h-96 overflow-hidden rounded-b-3xl shadow-2xl">
         <img src={club.bannerImage} alt={club.clubName} className="w-full h-full object-cover brightness-75" />
+
         <motion.h1
-          className="absolute bottom-5 left-15 text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg uppercase"
+          className="absolute bottom-5 left-4 md:left-10 text-3xl md:text-5xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg uppercase"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
@@ -187,41 +184,45 @@ const ClubDetailsPage = () => {
         </motion.h1>
       </div>
 
-      {/* Club Info */}
-      <div className="max-w-7xl flex mx-auto px-4 mt-8 flex flex-col md:flex-col gap-8">
-        <div className="flex justify-between">
-          <div className="w-[80%] flex flex-col gap-2">
-            <p className="text-gray-300 text-[20px]">{club.description}</p>
-            <div className="flex items-center gap-4 text-gray-200">
+      <div className="max-w-7xl mx-auto px-4 mt-8 flex flex-col gap-8">
+
+        <div className="flex flex-col md:flex-row justify-between gap-6">
+
+          <div className="w-full md:w-3/4 flex flex-col gap-3">
+            <p className="text-gray-300 text-base md:text-lg">{club.description}</p>
+
+            <div className="flex items-center gap-3 text-gray-200 text-sm md:text-base">
               <MapPin className="w-5 h-5 text-indigo-500" />
               <span>{club.location}</span>
             </div>
-            <div className="flex items-center gap-4 text-gray-200">
+
+            <div className="flex items-center gap-3 text-gray-200 text-sm md:text-base">
               <DollarSign className="w-5 h-5 text-green-500" />
               <span>Membership Fee: ${club.membershipFee}</span>
             </div>
           </div>
 
-          <div>
+          <div className="flex md:justify-end">
             <button
               onClick={handleAddNow}
               disabled={addedMap[club._id]}
-              className={`mt-6 px-6 py-3 text-white rounded-xl font-semibold w-fit transition-all duration-300 shadow-lg flex items-center gap-2 ${
+              className={`px-6 py-3 text-white rounded-xl font-semibold   h-fit transition-all duration-300 shadow-lg flex items-center gap-2 ${
                 addedMap[club._id] ? "bg-gray-500 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
               }`}
             >
-              {addedMap[club._id] ? "Added" : "Add Now"} <ArrowRight className="w-4 h-4" />
+              {addedMap[club._id] ? "Added" : "Add Now"}
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        {/* Related Clubs */}
         {relatedClubs.length > 0 && (
           <div>
-            <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg uppercase text-center mb-5">
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg uppercase text-center mb-6">
               Other Clubs
             </h2>
-            <div className="flex gap-4">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5">
               {relatedClubs.map((c) => (
                 <ClubCard key={c._id} club={c} />
               ))}
@@ -230,27 +231,29 @@ const ClubDetailsPage = () => {
         )}
       </div>
 
-      {/* Modal */}
       {modalOpen && clientSecret && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-3">
           <div className="bg-[#1a1a2e] p-6 rounded-xl w-full max-w-md relative">
+
             <button className="absolute top-3 right-3 text-gray-300" onClick={() => setModalOpen(false)}>
               <X className="w-5 h-5" />
             </button>
-<Elements stripe={stripePromise} options={{ clientSecret }}>
-  <CheckoutForm
-    clubId={club._id}
-    onSuccess={() => {
-      toast.success("You successfully joined the club!");
-      setModalOpen(false); // 
-      setAddedMap(prev => ({ ...prev, [club._id]: true }));
-    }}
-  />
-</Elements>
+
+            <Elements stripe={stripePromise} options={{ clientSecret }}>
+              <CheckoutForm
+                clubId={club._id}
+                onSuccess={() => {
+                  toast.success("You successfully joined the club!");
+                  setModalOpen(false);
+                  setAddedMap(prev => ({ ...prev, [club._id]: true }));
+                }}
+              />
+            </Elements>
 
           </div>
         </div>
       )}
+
     </div>
   );
 };

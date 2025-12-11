@@ -54,7 +54,7 @@ const AllClubsPage = () => {
   animate={{ opacity: 1, y: 0 }}
   transition={{ duration: 0.7 }}
 >
-  <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg uppercase">
+  <h1 className="text-5xl text-center md:text-6xl font-bold bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg uppercase">
     Explore All Clubs
   </h1>
 </motion.div>
