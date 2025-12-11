@@ -123,7 +123,7 @@ const ClubDetailsPage = () => {
 
   const handleAddNow = async () => {
     if (!user || !user._id) {
-      toast.error("দয়া করে লগইন করুন।");
+      toast.error("Please login first.");
       return;
     }
 
@@ -143,11 +143,11 @@ const ClubDetailsPage = () => {
           { withCredentials: true }
         );
 
-        toast.success("তুমি সফলভাবে ক্লাবের সদস্য হয়েছো!");
+        toast.success("You are now a member!");
         setAddedMap(prev => ({ ...prev, [club._id]: true }));
       } catch (err) {
         console.error(err);
-        toast.error("Membership join করতে সমস্যা হয়েছে।");
+        toast.error("Membership already added");
       }
     } else {
       try {
@@ -160,7 +160,7 @@ const ClubDetailsPage = () => {
         setModalOpen(true);
       } catch (err) {
         console.error(err);
-        toast.error("Payment শুরু করতে সমস্যা হয়েছে।");
+        toast.error("We are having some issues. Please try again.");
       }
     }
   };
@@ -206,7 +206,7 @@ const ClubDetailsPage = () => {
             <button
               onClick={handleAddNow}
               disabled={addedMap[club._id]}
-              className={`px-6 py-3 text-white rounded-xl font-semibold   h-fit transition-all duration-300 shadow-lg flex items-center gap-2 ${
+              className={`px-6 py-3 text-white rounded-xl font-semibold   h-fit   transition-all duration-300 shadow-lg flex items-center gap-2 ${
                 addedMap[club._id] ? "bg-gray-500 cursor-not-allowed" : "bg-indigo-600 hover:bg-indigo-700"
               }`}
             >
