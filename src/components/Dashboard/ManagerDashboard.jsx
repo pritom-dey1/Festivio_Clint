@@ -2,16 +2,15 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { FiUsers, FiCalendar, FiCreditCard, FiGrid } from "react-icons/fi";
+import { FiUsers, FiCalendar, FiCreditCard, FiGrid, FiMenu, FiX } from "react-icons/fi";
 import Logo from "../../assets/Logo.png";
 import LogoutButton from "../Global/LogoutButton";
-import { Link } from "react-router";
+import { Link } from "react-router-dom";
 import {
   PieChart,
   Pie,
   Cell,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   BarChart,
   Bar,
@@ -35,6 +34,7 @@ const API_ROOT = "http://localhost:5000/api/dashboard/manager";
 const ManagerDashboard = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [overview, setOverview] = useState(null);
   const [clubs, setClubs] = useState([]);
@@ -89,6 +89,7 @@ const ManagerDashboard = () => {
       axios
         .get(`${API_ROOT}/events/${c._id}`, { withCredentials: true })
         .then((r) => r.data || [])
+        .catch(() => [])
     );
     const eventsNested = await Promise.all(promises);
     return eventsNested.flat();
@@ -167,10 +168,10 @@ const ManagerDashboard = () => {
 
   useEffect(() => {
     fetchAllData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // ----------- CRUD Handlers -----------
-  // Clubs, Events, Members CRUD handlers (same as before)
   const handleCreateClub = async (e) => {
     e.preventDefault();
     try {
@@ -288,7 +289,11 @@ const ManagerDashboard = () => {
   };
 
   if (loading || !overview)
-    return <p className="text-center mt-10">Loading Manager Dashboard...</p>;
+    return (
+      <div className="flex justify-center items-center min-h-screen text-gray-300">
+        <p>Loading Manager Dashboard...</p>
+      </div>
+    );
   if (error)
     return <p className="text-center mt-10 text-red-400">Error: {error}</p>;
 
@@ -308,18 +313,43 @@ const ManagerDashboard = () => {
 
   return (
     <div className="relative min-h-screen flex bg-gradient-to-br from-[#0a0d15] via-[#090c14] to-[#070a12] text-gray-200">
+      {/* Mobile top bar */}
+      <div className="lg:hidden fixed top-0 left-0 w-full z-50 bg-[#0f131d]/90 backdrop-blur-xl border-b border-white/10 px-4 py-3 flex justify-between items-center">
+        <Link to="/">
+          <img src={Logo} alt="logo" className="w-9" />
+        </Link>
+        <button onClick={() => setSidebarOpen(true)} className="text-2xl">
+          <FiMenu />
+        </button>
+      </div>
+
       {/* Sidebar */}
-      <div className="w-64 h-screen fixed left-0 top-0 bg-white/5 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col shadow-xl">
-        <div className="flex items-center gap-3 mb-10">
+      <div
+        className={`fixed top-0 left-0 h-screen w-64 bg-white/5 backdrop-blur-xl border-r border-white/10 p-6 flex flex-col shadow-xl transform transition-transform duration-300 z-50
+          ${sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+      >
+        <div className="flex items-center justify-between mb-10 lg:block">
           <Link to="/">
             <img src={Logo} alt="logo" className="w-10" />
           </Link>
+
+          {/* Close button mobile */}
+          <button
+            className="lg:hidden text-white text-xl"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <FiX />
+          </button>
         </div>
-        <div className="space-y-2">
+
+        <div className="space-y-2 mt-6">
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => {
+                setActiveTab(tab.id);
+                setSidebarOpen(false);
+              }}
               className={`flex items-center gap-3 p-3 rounded-xl w-full transition-all duration-300 hover:bg-indigo-600/40 ${
                 activeTab === tab.id
                   ? "bg-indigo-600/60 shadow-lg border border-indigo-400/20"
@@ -333,26 +363,34 @@ const ManagerDashboard = () => {
         </div>
       </div>
 
+      {/* Overlay for mobile */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        ></div>
+      )}
+
       {/* Main Content */}
-      <div className="flex-1 ml-64 flex flex-col min-h-screen">
-        <div className="sticky top-0 z-50 flex justify-between items-center px-6 py-4 bg-gradient-to-r from-[#161b29]/90 to-[#0f131d]/90 backdrop-blur-xl border-b border-white/10 shadow-xl">
+      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen pt-16 lg:pt-0">
+        {/* Top Bar (Desktop only) */}
+        <div className="hidden lg:flex sticky top-0 z-30 justify-between items-center px-6 py-4 bg-gradient-to-r from-[#161b29]/90 to-[#0f131d]/90 backdrop-blur-xl border-b border-white/10 shadow-xl">
           <div>
-            <p className="text-lg font-semibold">
-              {user?.name|| "Manager"}(Manger)
-            </p>
-            <p className="text-sm opacity-60">
-              {user?.email || "manager@example.com"}
-            </p>
+            <p className="text-lg font-semibold">{user?.name || "Manager"} (Manager)</p>
+            <p className="text-sm opacity-60">{user?.email || "manager@example.com"}</p>
           </div>
           <LogoutButton />
         </div>
 
-        <div className="flex-1 p-8 space-y-6 overflow-y-auto">
+        <div className="flex-1 p-4 sm:p-6 lg:p-8 space-y-6 overflow-y-auto">
           {/* Overview with 4 charts */}
           {activeTab === "overview" && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <h2 className="text-3xl font-bold mb-6">Overview</h2>
-              <div className="grid md:grid-cols-2 gap-6">
+              <h2 className="text-2xl sm:text-3xl font-bold mb-6 bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                Overview
+              </h2>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Total Clubs - Bar */}
                 <div className="bg-white/5 p-6 rounded-2xl border border-white/10 shadow-lg backdrop-blur-xl h-72">
                   <h3 className="font-semibold text-lg mb-2">Total Clubs</h3>
@@ -383,10 +421,7 @@ const ManagerDashboard = () => {
                         label
                       >
                         {membersData.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                          />
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
                       <Tooltip />
@@ -424,10 +459,7 @@ const ManagerDashboard = () => {
                         label
                       >
                         {paymentsData.map((entry, index) => (
-                          <Cell
-                            key={`cell-${index}`}
-                            fill={COLORS[index % COLORS.length]}
-                          />
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                       </Pie>
                       <Tooltip />
@@ -437,457 +469,345 @@ const ManagerDashboard = () => {
               </div>
             </motion.div>
           )}
-          {/* My Clubs */}{" "}
+
+          {/* Clubs */}
           {activeTab === "clubs" && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              {" "}
-              <h2 className="text-3xl font-bold mb-6">My Clubs</h2>{" "}
+              <h2 className="text-2xl sm:text-3xl font-bold mb-6">My Clubs</h2>
+
               <form
                 onSubmit={handleCreateClub}
                 className="space-y-4 mb-6 p-6 bg-white/5 rounded-2xl border border-white/10 shadow-lg backdrop-blur-xl"
               >
-                {" "}
                 <input
                   type="text"
                   placeholder="Club Name"
                   value={newClub.clubName}
-                  onChange={(e) =>
-                    setNewClub({ ...newClub, clubName: e.target.value })
-                  }
+                  onChange={(e) => setNewClub({ ...newClub, clubName: e.target.value })}
                   className="input-field"
                   required
-                />{" "}
+                />
                 <input
                   type="text"
                   placeholder="Description"
                   value={newClub.description}
-                  onChange={(e) =>
-                    setNewClub({ ...newClub, description: e.target.value })
-                  }
+                  onChange={(e) => setNewClub({ ...newClub, description: e.target.value })}
                   className="input-field"
                   required
-                />{" "}
+                />
                 <select
                   value={newClub.category}
-                  onChange={(e) =>
-                    setNewClub({ ...newClub, category: e.target.value })
-                  }
+                  onChange={(e) => setNewClub({ ...newClub, category: e.target.value })}
                   className="input-field"
                 >
-                  {" "}
-                  <option value="Photography">Photography</option>{" "}
-                  <option value="Sports">Sports</option>{" "}
-                  <option value="Tech">Tech</option>{" "}
-                  <option value="Music">Music</option>{" "}
-                  <option value="Art">Art</option>{" "}
-                  <option value="Other">Other</option>{" "}
-                </select>{" "}
+                  <option value="Photography">Photography</option>
+                  <option value="Sports">Sports</option>
+                  <option value="Tech">Tech</option>
+                  <option value="Music">Music</option>
+                  <option value="Art">Art</option>
+                  <option value="Other">Other</option>
+                </select>
                 <input
                   type="text"
                   placeholder="Location"
                   value={newClub.location}
-                  onChange={(e) =>
-                    setNewClub({ ...newClub, location: e.target.value })
-                  }
+                  onChange={(e) => setNewClub({ ...newClub, location: e.target.value })}
                   className="input-field"
                   required
-                />{" "}
+                />
                 <input
                   type="text"
                   placeholder="Banner URL"
                   value={newClub.bannerImage}
-                  onChange={(e) =>
-                    setNewClub({ ...newClub, bannerImage: e.target.value })
-                  }
+                  onChange={(e) => setNewClub({ ...newClub, bannerImage: e.target.value })}
                   className="input-field"
-                />{" "}
+                />
                 <input
                   type="number"
                   placeholder="Membership Fee"
                   value={newClub.membershipFee}
-                  onChange={(e) =>
-                    setNewClub({
-                      ...newClub,
-                      membershipFee: Number(e.target.value),
-                    })
-                  }
+                  onChange={(e) => setNewClub({ ...newClub, membershipFee: Number(e.target.value) })}
                   className="input-field"
-                />{" "}
+                />
                 <button type="submit" className="btn-primary">
                   Create Club
-                </button>{" "}
-              </form>{" "}
-              {/* Edit Club Modal */}{" "}
+                </button>
+              </form>
+
+              {/* Edit Club */}
               {editClub && (
                 <form
                   onSubmit={handleUpdateClub}
                   className="space-y-4 mb-6 p-6 bg-indigo-900/30 rounded-2xl border border-indigo-400/20 shadow-lg backdrop-blur-xl"
                 >
-                  {" "}
-                  <h3 className="text-xl font-semibold text-indigo-100">
-                    Edit Club
-                  </h3>{" "}
+                  <h3 className="text-xl font-semibold text-indigo-100">Edit Club</h3>
                   <input
                     type="text"
                     placeholder="Club Name"
                     value={editClub.clubName}
-                    onChange={(e) =>
-                      setEditClub({ ...editClub, clubName: e.target.value })
-                    }
+                    onChange={(e) => setEditClub({ ...editClub, clubName: e.target.value })}
                     className="input-field"
                     required
-                  />{" "}
+                  />
                   <input
                     type="text"
                     placeholder="Description"
                     value={editClub.description}
-                    onChange={(e) =>
-                      setEditClub({ ...editClub, description: e.target.value })
-                    }
+                    onChange={(e) => setEditClub({ ...editClub, description: e.target.value })}
                     className="input-field"
                     required
-                  />{" "}
+                  />
                   <select
                     value={editClub.category}
-                    onChange={(e) =>
-                      setEditClub({ ...editClub, category: e.target.value })
-                    }
+                    onChange={(e) => setEditClub({ ...editClub, category: e.target.value })}
                     className="input-field"
                   >
-                    {" "}
-                    <option value="Photography">Photography</option>{" "}
-                    <option value="Sports">Sports</option>{" "}
-                    <option value="Tech">Tech</option>{" "}
-                    <option value="Music">Music</option>{" "}
-                    <option value="Art">Art</option>{" "}
-                    <option value="Other">Other</option>{" "}
-                  </select>{" "}
+                    <option value="Photography">Photography</option>
+                    <option value="Sports">Sports</option>
+                    <option value="Tech">Tech</option>
+                    <option value="Music">Music</option>
+                    <option value="Art">Art</option>
+                    <option value="Other">Other</option>
+                  </select>
                   <input
                     type="text"
                     placeholder="Location"
                     value={editClub.location}
-                    onChange={(e) =>
-                      setEditClub({ ...editClub, location: e.target.value })
-                    }
+                    onChange={(e) => setEditClub({ ...editClub, location: e.target.value })}
                     className="input-field"
                     required
-                  />{" "}
+                  />
                   <input
                     type="text"
                     placeholder="Banner URL"
                     value={editClub.bannerImage}
-                    onChange={(e) =>
-                      setEditClub({ ...editClub, bannerImage: e.target.value })
-                    }
+                    onChange={(e) => setEditClub({ ...editClub, bannerImage: e.target.value })}
                     className="input-field"
-                  />{" "}
+                  />
                   <input
                     type="number"
                     placeholder="Membership Fee"
                     value={editClub.membershipFee}
-                    onChange={(e) =>
-                      setEditClub({
-                        ...editClub,
-                        membershipFee: Number(e.target.value),
-                      })
-                    }
+                    onChange={(e) => setEditClub({ ...editClub, membershipFee: Number(e.target.value) })}
                     className="input-field"
-                  />{" "}
+                  />
                   <div className="flex gap-3">
-                    {" "}
                     <button type="submit" className="btn-primary">
                       Update
-                    </button>{" "}
-                    <button
-                      type="button"
-                      onClick={() => setEditClub(null)}
-                      className="btn-delete"
-                    >
+                    </button>
+                    <button type="button" onClick={() => setEditClub(null)} className="btn-delete">
                       Cancel
-                    </button>{" "}
-                  </div>{" "}
+                    </button>
+                  </div>
                 </form>
-              )}{" "}
-              {/* Clubs List */}{" "}
-              <div className="grid md:grid-cols-2 gap-6">
-                {" "}
+              )}
+
+              {/* Clubs List */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {clubs.map((c) => (
                   <motion.div
                     key={c._id}
                     whileHover={{ scale: 1.03 }}
                     className="bg-white/5 p-6 rounded-2xl border border-white/10 shadow-lg hover:bg-white/10 transition"
                   >
-                    {" "}
-                    <p className="text-lg font-semibold">{c.clubName}</p>{" "}
-                    <p className="opacity-60">{c.category}</p>{" "}
-                    <p>${c.membershipFee}</p>{" "}
+                    <p className="text-lg font-semibold">{c.clubName}</p>
+                    <p className="opacity-60">{c.category}</p>
+                    <p>${c.membershipFee}</p>
                     <div className="flex gap-3 mt-2">
-                      {" "}
-                      <button
-                        onClick={() => setEditClub(c)}
-                        className="btn-primary text-sm"
-                      >
+                      <button onClick={() => setEditClub(c)} className="btn-primary text-sm">
                         Edit
-                      </button>{" "}
-                      <button
-                        onClick={() => handleDeleteClub(c._id)}
-                        className="btn-delete text-sm"
-                      >
+                      </button>
+                      <button onClick={() => handleDeleteClub(c._id)} className="btn-delete text-sm">
                         Delete
-                      </button>{" "}
-                    </div>{" "}
+                      </button>
+                    </div>
                   </motion.div>
-                ))}{" "}
-              </div>{" "}
+                ))}
+              </div>
             </motion.div>
-          )}{" "}
-          {/* My Events */}{" "}
+          )}
+
+          {/* Events */}
           {activeTab === "events" && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              {" "}
-              <h2 className="text-3xl font-bold mb-6">My Events</h2>{" "}
-              {/* Create Event Form */}{" "}
+              <h2 className="text-2xl sm:text-3xl font-bold mb-6">My Events</h2>
+
               <form
                 onSubmit={handleCreateEvent}
                 className="space-y-4 mb-6 p-6 bg-white/5 rounded-2xl border border-white/10 shadow-lg backdrop-blur-xl"
               >
-                {" "}
                 <select
                   value={newEvent.clubId}
-                  onChange={(e) =>
-                    setNewEvent({ ...newEvent, clubId: e.target.value })
-                  }
+                  onChange={(e) => setNewEvent({ ...newEvent, clubId: e.target.value })}
                   required
                   className="input-field"
                 >
-                  {" "}
-                  <option value="">Select Club</option>{" "}
+                  <option value="">Select Club</option>
                   {clubs.map((c) => (
                     <option key={c._id} value={c._id}>
                       {c.clubName}
                     </option>
-                  ))}{" "}
-                </select>{" "}
+                  ))}
+                </select>
                 <input
                   type="text"
                   placeholder="Title"
                   value={newEvent.title}
-                  onChange={(e) =>
-                    setNewEvent({ ...newEvent, title: e.target.value })
-                  }
+                  onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
                   className="input-field"
                   required
-                />{" "}
+                />
                 <textarea
                   placeholder="Description"
                   value={newEvent.description}
-                  onChange={(e) =>
-                    setNewEvent({ ...newEvent, description: e.target.value })
-                  }
+                  onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
                   className="input-field"
-                />{" "}
+                />
                 <input
                   type="date"
                   value={newEvent.eventDate}
-                  onChange={(e) =>
-                    setNewEvent({ ...newEvent, eventDate: e.target.value })
-                  }
+                  onChange={(e) => setNewEvent({ ...newEvent, eventDate: e.target.value })}
                   className="input-field"
                   required
-                />{" "}
+                />
                 <input
                   type="text"
                   placeholder="Location"
                   value={newEvent.location}
-                  onChange={(e) =>
-                    setNewEvent({ ...newEvent, location: e.target.value })
-                  }
+                  onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
                   className="input-field"
-                />{" "}
+                />
                 <label className="flex items-center gap-2">
-                  {" "}
-                  Paid Event{" "}
+                  Paid Event
                   <input
                     type="checkbox"
                     checked={newEvent.isPaid}
-                    onChange={(e) =>
-                      setNewEvent({ ...newEvent, isPaid: e.target.checked })
-                    }
-                  />{" "}
-                </label>{" "}
+                    onChange={(e) => setNewEvent({ ...newEvent, isPaid: e.target.checked })}
+                    className="ml-2"
+                  />
+                </label>
                 {newEvent.isPaid && (
                   <input
                     type="number"
                     placeholder="Event Fee"
                     value={newEvent.eventFee}
-                    onChange={(e) =>
-                      setNewEvent({
-                        ...newEvent,
-                        eventFee: Number(e.target.value),
-                      })
-                    }
+                    onChange={(e) => setNewEvent({ ...newEvent, eventFee: Number(e.target.value) })}
                     className="input-field"
                   />
-                )}{" "}
+                )}
                 <input
                   type="number"
                   placeholder="Max Attendees"
                   value={newEvent.maxAttendees}
-                  onChange={(e) =>
-                    setNewEvent({
-                      ...newEvent,
-                      maxAttendees: Number(e.target.value),
-                    })
-                  }
+                  onChange={(e) => setNewEvent({ ...newEvent, maxAttendees: Number(e.target.value) })}
                   className="input-field"
-                />{" "}
+                />
                 <button type="submit" className="btn-primary">
                   Create Event
-                </button>{" "}
-              </form>{" "}
-              {/* Edit Event Modal */}{" "}
+                </button>
+              </form>
+
+              {/* Edit Event */}
               {editEvent && (
                 <form
                   onSubmit={handleUpdateEvent}
                   className="space-y-4 mb-6 p-6 bg-indigo-900/30 rounded-2xl border border-indigo-400/20 shadow-lg backdrop-blur-xl"
                 >
-                  {" "}
-                  <h3 className="text-xl font-semibold text-indigo-100">
-                    Edit Event
-                  </h3>{" "}
+                  <h3 className="text-xl font-semibold text-indigo-100">Edit Event</h3>
                   <input
                     type="text"
                     placeholder="Title"
                     value={editEvent.title}
-                    onChange={(e) =>
-                      setEditEvent({ ...editEvent, title: e.target.value })
-                    }
+                    onChange={(e) => setEditEvent({ ...editEvent, title: e.target.value })}
                     className="input-field"
                     required
-                  />{" "}
+                  />
                   <textarea
                     placeholder="Description"
                     value={editEvent.description}
-                    onChange={(e) =>
-                      setEditEvent({
-                        ...editEvent,
-                        description: e.target.value,
-                      })
-                    }
+                    onChange={(e) => setEditEvent({ ...editEvent, description: e.target.value })}
                     className="input-field"
-                  />{" "}
+                  />
                   <input
                     type="date"
                     value={editEvent.eventDate}
-                    onChange={(e) =>
-                      setEditEvent({ ...editEvent, eventDate: e.target.value })
-                    }
+                    onChange={(e) => setEditEvent({ ...editEvent, eventDate: e.target.value })}
                     className="input-field"
                     required
-                  />{" "}
+                  />
                   <input
                     type="text"
                     placeholder="Location"
                     value={editEvent.location}
-                    onChange={(e) =>
-                      setEditEvent({ ...editEvent, location: e.target.value })
-                    }
+                    onChange={(e) => setEditEvent({ ...editEvent, location: e.target.value })}
                     className="input-field"
-                  />{" "}
+                  />
                   <label className="flex items-center gap-2">
-                    {" "}
-                    Paid Event{" "}
+                    Paid Event
                     <input
                       type="checkbox"
                       checked={editEvent.isPaid}
-                      onChange={(e) =>
-                        setEditEvent({ ...editEvent, isPaid: e.target.checked })
-                      }
-                    />{" "}
-                  </label>{" "}
+                      onChange={(e) => setEditEvent({ ...editEvent, isPaid: e.target.checked })}
+                      className="ml-2"
+                    />
+                  </label>
                   {editEvent.isPaid && (
                     <input
                       type="number"
                       placeholder="Event Fee"
                       value={editEvent.eventFee}
-                      onChange={(e) =>
-                        setEditEvent({
-                          ...editEvent,
-                          eventFee: Number(e.target.value),
-                        })
-                      }
+                      onChange={(e) => setEditEvent({ ...editEvent, eventFee: Number(e.target.value) })}
                       className="input-field"
                     />
-                  )}{" "}
+                  )}
                   <input
                     type="number"
                     placeholder="Max Attendees"
                     value={editEvent.maxAttendees}
-                    onChange={(e) =>
-                      setEditEvent({
-                        ...editEvent,
-                        maxAttendees: Number(e.target.value),
-                      })
-                    }
+                    onChange={(e) => setEditEvent({ ...editEvent, maxAttendees: Number(e.target.value) })}
                     className="input-field"
-                  />{" "}
+                  />
                   <div className="flex gap-3">
-                    {" "}
                     <button type="submit" className="btn-primary">
                       Update
-                    </button>{" "}
-                    <button
-                      type="button"
-                      onClick={() => setEditEvent(null)}
-                      className="btn-delete"
-                    >
+                    </button>
+                    <button type="button" onClick={() => setEditEvent(null)} className="btn-delete">
                       Cancel
-                    </button>{" "}
-                  </div>{" "}
+                    </button>
+                  </div>
                 </form>
-              )}{" "}
-              {/* Events List */}{" "}
-              <div className="grid md:grid-cols-2 gap-6">
-                {" "}
+              )}
+
+              {/* Events List */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {events.map((e) => (
                   <motion.div
                     key={e._id}
                     whileHover={{ scale: 1.03 }}
                     className="bg-white/5 p-6 rounded-2xl border border-white/10 shadow-lg hover:bg-white/10 transition"
                   >
-                    {" "}
-                    <p className="text-lg font-semibold">{e.title}</p>{" "}
-                    <p className="opacity-60">
-                      {new Date(e.eventDate).toLocaleDateString()}
-                    </p>{" "}
-                    <p>{e.isPaid ? `$${e.eventFee}` : "Free"}</p>{" "}
+                    <p className="text-lg font-semibold">{e.title}</p>
+                    <p className="opacity-60">{new Date(e.eventDate).toLocaleDateString()}</p>
+                    <p>{e.isPaid ? `$${e.eventFee}` : "Free"}</p>
                     <div className="flex gap-3 mt-2">
-                      {" "}
-                      <button
-                        onClick={() => setEditEvent(e)}
-                        className="btn-primary text-sm"
-                      >
+                      <button onClick={() => setEditEvent(e)} className="btn-primary text-sm">
                         Edit
-                      </button>{" "}
-                      <button
-                        onClick={() => handleDeleteEvent(e._id)}
-                        className="btn-delete text-sm"
-                      >
+                      </button>
+                      <button onClick={() => handleDeleteEvent(e._id)} className="btn-delete text-sm">
                         Delete
-                      </button>{" "}
-                    </div>{" "}
+                      </button>
+                    </div>
                   </motion.div>
-                ))}{" "}
-              </div>{" "}
+                ))}
+              </div>
             </motion.div>
-          )}{" "}
-          {/* Club Members */}{" "}
+          )}
+
+          {/* Club Members */}
           {activeTab === "members" && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              {" "}
-              <h2 className="text-3xl font-bold mb-6">Club Members</h2>{" "}
-              <div className="grid md:grid-cols-2 gap-6">
-                {" "}
+              <h2 className="text-2xl sm:text-3xl font-bold mb-6">Club Members</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {members.length === 0 ? (
                   <p>No members found.</p>
                 ) : (
@@ -897,35 +817,26 @@ const ManagerDashboard = () => {
                       whileHover={{ scale: 1.03 }}
                       className="bg-white/5 p-6 rounded-2xl border border-white/10 shadow-lg hover:bg-white/10 transition"
                     >
-                      {" "}
-                      <p className="font-semibold">
-                        {m.userId?.name || m.userName || "No name"}
-                      </p>{" "}
-                      <p className="opacity-60">
-                        {m.userId?.email || m.userEmail || "No email"}
-                      </p>{" "}
-                      <p>Status: {m.status}</p>{" "}
+                      <p className="font-semibold">{m.userId?.name || m.userName || "No name"}</p>
+                      <p className="opacity-60">{m.userId?.email || m.userEmail || "No email"}</p>
+                      <p>Status: {m.status}</p>
                       {m.status !== "expired" && (
-                        <button
-                          onClick={() => handleExpireMember(m._id)}
-                          className="btn-delete mt-2"
-                        >
+                        <button onClick={() => handleExpireMember(m._id)} className="btn-delete mt-2">
                           Expire
                         </button>
-                      )}{" "}
+                      )}
                     </motion.div>
                   ))
-                )}{" "}
-              </div>{" "}
+                )}
+              </div>
             </motion.div>
-          )}{" "}
-          {/* Payments */}{" "}
+          )}
+
+          {/* Payments */}
           {activeTab === "payments" && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              {" "}
-              <h2 className="text-3xl font-bold mb-6">Payments</h2>{" "}
-              <div className="grid md:grid-cols-2 gap-6">
-                {" "}
+              <h2 className="text-2xl sm:text-3xl font-bold mb-6">Payments</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {payments.length === 0 ? (
                   <p>No payments yet.</p>
                 ) : (
@@ -935,65 +846,43 @@ const ManagerDashboard = () => {
                       whileHover={{ scale: 1.03 }}
                       className="bg-white/5 p-6 rounded-2xl border border-white/10 shadow-lg hover:bg-white/10 transition"
                     >
-                      {" "}
-                      <p className="text-lg font-semibold">${p.amount}</p>{" "}
-                      <p className="opacity-60 text-sm">
-                        {p.userId?.email || p.userEmail || "unknown"}
-                      </p>{" "}
-                      <p className="text-indigo-400">
-                        {p.status || p.paymentStatus || "paid"}
-                      </p>{" "}
+                      <p className="text-lg font-semibold">${p.amount}</p>
+                      <p className="opacity-60 text-sm">{p.userId?.email || p.userEmail || "unknown"}</p>
+                      <p className="text-indigo-400">{p.status || p.paymentStatus || "paid"}</p>
                     </motion.div>
                   ))
-                )}{" "}
-              </div>{" "}
+                )}
+              </div>
             </motion.div>
-          )}{" "}
-          {/* Event Registrations */}{" "}
+          )}
+
+          {/* Event Registrations */}
           {activeTab === "registrations" && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              {" "}
-              <h2 className="text-3xl font-bold mb-6">
-                Event Registrations
-              </h2>{" "}
+              <h2 className="text-2xl sm:text-3xl font-bold mb-6">Event Registrations</h2>
               {eventRegistrations.length === 0 ? (
                 <p>No registrations yet.</p>
               ) : (
                 eventRegistrations.map((er) => (
-                  <div
-                    key={er.event._id}
-                    className="mb-6 bg-white/5 p-6 rounded-2xl border border-white/10 shadow-lg"
-                  >
-                    {" "}
-                    <h3 className="text-xl font-semibold">
-                      {er.event.title}
-                    </h3>{" "}
-                    <p className="opacity-60 mb-2">
-                      Date: {new Date(er.event.eventDate).toLocaleDateString()}
-                    </p>{" "}
-                    <p className="opacity-60 mb-2">Registered Members:</p>{" "}
+                  <div key={er.event._id} className="mb-6 bg-white/5 p-6 rounded-2xl border border-white/10 shadow-lg">
+                    <h3 className="text-xl font-semibold">{er.event.title}</h3>
+                    <p className="opacity-60 mb-2">Date: {new Date(er.event.eventDate).toLocaleDateString()}</p>
+                    <p className="opacity-60 mb-2">Registered Members:</p>
                     {!er.regs || er.regs.length === 0 ? (
-                      <p className="ml-4 text-gray-400">
-                        No members registered yet.
-                      </p>
+                      <p className="ml-4 text-gray-400">No members registered yet.</p>
                     ) : (
                       <ul className="ml-4 list-disc">
-                        {" "}
                         {er.regs.map((r) => (
                           <li key={r._id}>
-                            {" "}
-                            {r.userEmail || r.userName || "No email"} — Status:{" "}
-                            {r.status}{" "}
-                            {r.registeredAt
-                              ? `(${new Date(r.registeredAt).toLocaleString()})`
-                              : ""}{" "}
+                            {r.userEmail || r.userName || "No email"} — Status: {r.status}{" "}
+                            {r.registeredAt ? `(${new Date(r.registeredAt).toLocaleString()})` : ""}
                           </li>
-                        ))}{" "}
+                        ))}
                       </ul>
-                    )}{" "}
+                    )}
                   </div>
                 ))
-              )}{" "}
+              )}
             </motion.div>
           )}
         </div>
