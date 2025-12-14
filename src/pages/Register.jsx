@@ -41,7 +41,7 @@ const Register = () => {
 
       // Send token to backend
       const res = await axios.post(
-        "http://localhost:5000/api/auth/firebase-login",
+        "https://server-1kb7.onrender.com/api/auth/firebase-login",
         { firebaseToken: idToken },
         { withCredentials: true }
       );
@@ -64,7 +64,7 @@ const Register = () => {
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
       const res = await axios.post(
-        "http://localhost:5000/api/auth/firebase-login",
+        "https://server-1kb7.onrender.com/api/auth/firebase-login",
         { firebaseToken: idToken },
         { withCredentials: true }
       );

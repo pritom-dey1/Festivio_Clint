@@ -29,7 +29,7 @@ const tabs = [
   { id: "registrations", label: "Event Registrations", icon: FiUsers },
 ];
 
-const API_ROOT = "http://localhost:5000/api/dashboard/manager";
+const API_ROOT = "https://server-1kb7.onrender.com/api/dashboard/manager";
 
 const ManagerDashboard = () => {
   const { user } = useAuth();

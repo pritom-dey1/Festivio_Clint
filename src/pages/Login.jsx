@@ -25,7 +25,7 @@ const Login = () => {
       const idToken = await userCredential.user.getIdToken();
 
       const res = await axios.post(
-        "http://localhost:5000/api/auth/firebase-login",
+        "https://server-1kb7.onrender.com/api/auth/firebase-login",
         { firebaseToken: idToken },
         { withCredentials: true }
       );
@@ -49,7 +49,7 @@ const Login = () => {
       const idToken = await result.user.getIdToken();
 
       const res = await axios.post(
-        "http://localhost:5000/api/auth/firebase-login",
+        "https://server-1kb7.onrender.com/api/auth/firebase-login",
         { firebaseToken: idToken },
         { withCredentials: true }
       );

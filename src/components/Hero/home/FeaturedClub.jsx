@@ -22,8 +22,9 @@ const FeaturedClub = () => {
   const {t} = useTranslation();
   const { data: clubs, isLoading } = useQuery({
     queryKey: ["featured-clubs"],
+
     queryFn: async () => {
-      const res = await axios.get("http://localhost:5000/api/clubs");
+      const res = await axios.get("https://server-1kb7.onrender.com/api/clubs");
       return res.data;
     },
   });

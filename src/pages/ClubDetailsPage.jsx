@@ -55,13 +55,13 @@ const CheckoutForm = ({ clientSecret, clubId, onSuccess }) => {
         };
 
         const paymentRes = await axios.post(
-          "http://localhost:5000/api/payments",
+          "https://server-1kb7.onrender.com/api/payments",
           paymentData,
           { withCredentials: true }
         );
 
         await axios.post(
-          "http://localhost:5000/api/memberships",
+          "https://server-1kb7.onrender.com/api/memberships",
           { userId: user._id, clubId, status: "active", paymentId: paymentRes.data._id },
           { withCredentials: true }
         );
@@ -77,17 +77,28 @@ const CheckoutForm = ({ clientSecret, clubId, onSuccess }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-      <PaymentElement />
-      {error && <p className="text-red-500">{error}</p>}
-      <button
-        type="submit"
-        disabled={!stripe || loading}
-        className="mt-4 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold w-full"
-      >
-        {loading ? "Processing..." : "Pay & Join"}
-      </button>
-    </form>
+<form
+  onSubmit={handleSubmit}
+  className="flex flex-col gap-3 w-full max-w-[360px] sm:max-w-[400px] mx-auto"
+>
+  <div className="w-full">
+    <PaymentElement />
+  </div>
+
+  {error && (
+    <p className="text-red-500 text-xs sm:text-sm text-center">
+      {error}
+    </p>
+  )}
+
+  <button
+    type="submit"
+    disabled={!stripe || loading}
+    className="mt-2 w-full py-3 sm:py-3.5 text-sm sm:text-base bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 disabled:cursor-not-allowed text-white rounded-xl font-semibold transition-all"
+  >
+    {loading ? "Processing..." : "Pay & Join"}
+  </button>
+</form>
   );
 };
 
@@ -106,10 +117,10 @@ const ClubDetailsPage = () => {
     const fetchClub = async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`http://localhost:5000/api/clubs/${id}`);
+        const res = await axios.get(`https://server-1kb7.onrender.com/api/clubs/${id}`);
         setClub(res.data);
 
-        const allClubsRes = await axios.get("http://localhost:5000/api/clubs");
+        const allClubsRes = await axios.get("https://server-1kb7.onrender.com/api/clubs");
         const others = allClubsRes.data.filter(c => c._id !== id);
         setRelatedClubs(others.slice(0, 3));
       } catch (err) {
@@ -132,13 +143,13 @@ const ClubDetailsPage = () => {
     if (club.membershipFee === 0) {
       try {
         const paymentRes = await axios.post(
-          "http://localhost:5000/api/payments",
+          "https://server-1kb7.onrender.com/api/payments",
           { userId: user._id, userEmail: user.email, amount: 0, type: "membership", clubId: club._id, status: "success" },
           { withCredentials: true }
         );
 
         await axios.post(
-          "http://localhost:5000/api/memberships",
+          "https://server-1kb7.onrender.com/api/memberships",
           { userId: user._id, clubId: club._id, status: "active", paymentId: paymentRes.data._id },
           { withCredentials: true }
         );
@@ -152,7 +163,7 @@ const ClubDetailsPage = () => {
     } else {
       try {
         const res = await axios.post(
-          "http://localhost:5000/api/payments/create-payment-intent",
+          "https://server-1kb7.onrender.com/api/payments/create-payment-intent",
           { amount: club.membershipFee * 100, clubId: club._id },
           { withCredentials: true }
         );
@@ -160,7 +171,7 @@ const ClubDetailsPage = () => {
         setModalOpen(true);
       } catch (err) {
         console.error(err);
-        toast.error("We are having some issues. Please try again.");
+        toast.error("An Admin or a Manager can't add to any club");
       }
     }
   };
@@ -231,28 +242,44 @@ const ClubDetailsPage = () => {
         )}
       </div>
 
-      {modalOpen && clientSecret && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-3">
-          <div className="bg-[#1a1a2e] p-6 rounded-xl w-full max-w-md relative">
+{modalOpen && clientSecret && (
+  <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-3">
+    <div className="bg-[#1a1a2e] p-4 sm:p-6 rounded-xl w-full max-w-[380px] sm:max-w-md relative">
 
-            <button className="absolute top-3 right-3 text-gray-300" onClick={() => setModalOpen(false)}>
-              <X className="w-5 h-5" />
-            </button>
+      <button
+        className="absolute top-3 right-3 text-gray-300"
+        onClick={() => setModalOpen(false)}
+      >
+        <X className="w-5 h-5" />
+      </button>
 
-            <Elements stripe={stripePromise} options={{ clientSecret }}>
-              <CheckoutForm
-                clubId={club._id}
-                onSuccess={() => {
-                  toast.success("You successfully joined the club!");
-                  setModalOpen(false);
-                  setAddedMap(prev => ({ ...prev, [club._id]: true }));
-                }}
-              />
-            </Elements>
+      <Elements
+        stripe={stripePromise}
+        options={{
+          clientSecret,
+          appearance: {
+            theme: "night",
+            variables: {
+              spacingUnit: "4px",
+              borderRadius: "12px"
+            }
+          }
+        }}
+      >
+        <CheckoutForm
+          clubId={club._id}
+          onSuccess={() => {
+            toast.success("You successfully joined the club!");
+            setModalOpen(false);
+            setAddedMap(prev => ({ ...prev, [club._id]: true }));
+          }}
+        />
+      </Elements>
 
-          </div>
-        </div>
-      )}
+    </div>
+  </div>
+)}
+
 
     </div>
   );

@@ -20,7 +20,7 @@ const Allevents = () => {
 
         // 1️⃣ Fetch user's memberships
         const clubsRes = await axios.get(
-          "http://localhost:5000/api/memberships/me",
+          "https://server-1kb7.onrender.com/api/memberships/me",
           { withCredentials: true }
         );
         const clubIds = clubsRes.data.map(m => m.clubId._id || m.clubId);
@@ -34,7 +34,7 @@ const Allevents = () => {
         const allEvents = [];
         for (const id of clubIds) {
           const res = await axios.get(
-            `http://localhost:5000/api/events/club/${id}`,
+            `https://server-1kb7.onrender.com/events/club/${id}`,
             { withCredentials: true }
           );
           allEvents.push(...res.data);
@@ -43,7 +43,7 @@ const Allevents = () => {
 
         // 3️⃣ Fetch user's registered events
         const regRes = await axios.get(
-          "http://localhost:5000/api/eventRegistrations/my",
+          "https://server-1kb7.onrender.com/eventRegistrations/my",
           { withCredentials: true }
         );
         const regMap = {};
@@ -74,7 +74,7 @@ const Allevents = () => {
     if (event.fee === 0) {
       try {
         const res = await axios.post(
-          "http://localhost:5000/api/eventRegistrations",
+          "https://server-1kb7.onrender.com/eventRegistrations",
           { eventId: event._id, clubId: event.clubId, paymentId: null },
           { withCredentials: true }
         );
@@ -85,9 +85,9 @@ const Allevents = () => {
         toast.error("Registration failed.");
       }
     } else {
-      // Paid event → redirect to payment page or open Stripe checkout
+  
       toast.error("Paid event. Payment flow not implemented here yet.");
-      // এখানে তোমার Stripe checkout logic integrate করতে পারো
+  
     }
   };
 

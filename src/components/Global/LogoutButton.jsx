@@ -10,7 +10,7 @@ const LogoutButton = () => {
   const handleLogout = async () => {
     try {
       await axios.post(
-        "http://localhost:5000/api/auth/logout",
+        "https://server-1kb7.onrender.com/api/auth/logout",
         {},
         { withCredentials: true }
       );

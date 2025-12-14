@@ -13,7 +13,7 @@ export default function ProfileModal({ close }) {
       setLoading(true);
 
       const res = await axios.put(
-        "http://localhost:5000/api/auth/update",
+        "https://server-1kb7.onrender.com/api/auth/update",
         { name, photoURL: photo },
         { withCredentials: true }
       );

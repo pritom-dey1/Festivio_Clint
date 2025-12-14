@@ -26,7 +26,7 @@ const AllClubsPage = () => {
   const fetchClubs = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("http://localhost:5000/api/clubs", {
+      const res = await axios.get("https://server-1kb7.onrender.com/api/clubs", {
         params: {
           search: search || undefined,
           category: category !== "All" ? category : undefined,

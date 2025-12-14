@@ -47,7 +47,7 @@ const EventPaymentForm = ({ clientSecret, event, user, onSuccess, showToast }) =
 
       if (paymentIntent && paymentIntent.status === "succeeded") {
         const paymentRes = await axios.post(
-          "http://localhost:5000/api/payments",
+          "https://server-1kb7.onrender.com/api/payments",
           {
             userId: user._id,
             userEmail: user.email,
@@ -62,7 +62,7 @@ const EventPaymentForm = ({ clientSecret, event, user, onSuccess, showToast }) =
         );
 
         await axios.post(
-          "http://localhost:5000/api/event-registrations",
+          "https://server-1kb7.onrender.com/api/event-registrations",
           {
             eventId: event._id,
             clubId: event.clubId,
@@ -112,7 +112,7 @@ const EventCard = ({ event, user }) => {
     const checkRegistration = async () => {
       if (!user) return;
       try {
-        const res = await axios.get("http://localhost:5000/api/event-registrations/my", { withCredentials: true });
+        const res = await axios.get("https://server-1kb7.onrender.com/api/event-registrations/my", { withCredentials: true });
         const registered = res.data.some(r => r.eventId === event._id);
         setAlreadyRegistered(registered);
       } catch (err) {
@@ -129,7 +129,7 @@ const EventCard = ({ event, user }) => {
     if (event.isPaid) {
       try {
         const res = await axios.post(
-          "http://localhost:5000/api/payments/create-payment-intent",
+          "https://server-1kb7.onrender.com/api/payments/create-payment-intent",
           { amount: event.eventFee * 100, clubId: event.clubId },
           { withCredentials: true }
         );
@@ -143,7 +143,7 @@ const EventCard = ({ event, user }) => {
 
     try {
       await axios.post(
-        "http://localhost:5000/api/event-registrations",
+        "https://server-1kb7.onrender.com/api/event-registrations",
         {
           eventId: event._id,
           clubId: event.clubId,

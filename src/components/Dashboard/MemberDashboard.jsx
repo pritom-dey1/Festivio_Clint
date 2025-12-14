@@ -29,12 +29,12 @@ const MemberDashboard = () => {
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const API = "http://localhost:5000/api/dashboard/member";
+  const API = "https://server-1kb7.onrender.com/api/dashboard/member";
 
   const cancelEventRegistration = async (registrationId) => {
     try {
       await axios.put(
-        `http://localhost:5000/api/event-registrations/cancel/${registrationId}`,
+        `https://server-1kb7.onrender.com/api/event-registrations/cancel/${registrationId}`,
         {},
         { withCredentials: true }
       );
@@ -50,7 +50,7 @@ const MemberDashboard = () => {
   const loadOverview = async () => {
     const res = await axios.get(`${API}/overview`, { withCredentials: true });
     setOverview(res.data);
-  };
+  };                                                         
 
   const loadClubs = async () => {
     const res = await axios.get(`${API}/my-clubs`, { withCredentials: true });

@@ -26,7 +26,7 @@ const tabs = [
   { id: "payments", label: "Payments", icon: FiCreditCard },
 ];
 
-const API_ROOT = "http://localhost:5000/api/dashboard/admin";
+const API_ROOT = "https://server-1kb7.onrender.com/api/dashboard/admin";
 const neonColors = ["#6366f1", "#a855f7", "#ec4899", "#f472b6"];
 
 const AdminDashboard = () => {

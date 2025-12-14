@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }) => {
       if (currentUser) {
         try {
           // Fetch backend user from JWT cookie
-          const res = await axios.get("http://localhost:5000/api/auth/me", {
+          const res = await axios.get("https://server-1kb7.onrender.com/api/auth/me", {
             withCredentials: true,
           });
           setUser(res.data.user); // backend user: {name, email, role, photoURL}
