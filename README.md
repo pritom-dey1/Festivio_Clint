@@ -1,6 +1,6 @@
 # Festivio – Frontend (Client Side)
 
-## 🌐 Project Name
+## 🌐 FestiVio
 **Festivio – Membership & Event Management for Local Clubs (Frontend)**
 
 ## 🎯 Project Purpose
@@ -141,4 +141,4 @@ Pass : adsfawerwqerqwer
 
 ---
 
-© 2025 ClubSphere – Frontend Client
+© 2025 FestiVio – Frontend Client
